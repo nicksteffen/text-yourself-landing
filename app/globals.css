@@ -39,4 +39,17 @@ button { font: inherit; }
 .apk-form button:disabled { opacity:.65; cursor:wait; }
 .apk-error { color:#ffb3a4; font-size:13px; margin:5px 0 0; }
 @media (max-width:760px) { .apk-page { padding:20px; }.apk-panel { padding:32px 24px; }.screenshot-card img { height:240px; } }
+.privacy-title { max-width:1240px;margin:auto;padding:90px 32px 40px; }
+.privacy-title h1 { font-family:'DM Serif Display',serif;font-size:clamp(52px,6vw,86px);font-weight:400;letter-spacing:-.055em;line-height:.98;margin:0; }
+.privacy-title h1 span { color:var(--blue); }
+.privacy-intro { max-width:560px;color:var(--muted);font-size:17px;line-height:1.7;margin:27px 0 18px; }
+.privacy-contact { width:max-content;font-size:14px; }
+.policy-wrap { max-width:820px;margin:auto;padding:40px 64px 120px; }
+.policy-block { padding:34px 0;border-top:1px solid var(--border); }
+.policy-block h2 { font-family:'DM Serif Display',serif;font-size:clamp(28px,3vw,38px);font-weight:400;letter-spacing:-.03em;margin:0 0 16px; }
+.policy-block p { color:var(--muted);line-height:1.75;margin:0 0 14px;max-width:660px; }
+.policy-block p:last-child { margin-bottom:0; }
+.policy-block a { color:var(--blue);font-weight:700; }
+.policy-block strong { color:var(--foreground); }
+@media (max-width:760px) { .privacy-title{padding:60px 20px 25px}.policy-wrap{padding:25px 20px 90px} }
 @layer base { * { outline-color:var(--ring); } }

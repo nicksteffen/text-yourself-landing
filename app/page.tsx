@@ -38,7 +38,7 @@ export default function Page() {
   const [menuOpen, setMenuOpen] = useState(false)
   return (
     <main>
-      <header className="site-header"><a href="#top" className="brand"><span className="brand-mark"><img src="/favicon.png" alt="" /></span><span>text yourself</span></a><nav className={menuOpen ? 'nav open' : 'nav'}><a href="#how">How it works</a><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="/download" className="nav-cta">Download APK <ArrowRight size={15} /></a></nav><button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">{menuOpen ? <X /> : <Menu />}</button></header>
+      <header className="site-header"><a href="#top" className="brand"><span className="brand-mark"><img src="/favicon.png" alt="" /></span><span>text yourself</span></a><nav className={menuOpen ? 'nav open' : 'nav'}><a href="#how">How it works</a><a href="#features">Features</a><a href="/privacy">Privacy</a><a href="/download" className="nav-cta">Download APK <ArrowRight size={15} /></a></nav><button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">{menuOpen ? <X /> : <Menu />}</button></header>
 
       <section id="top" className="hero"><div className="hero-copy"><p className="kicker"><span className="pulse" /> Your thoughts, on your timeline</p><h1>Message your<br /><em>future self.</em></h1><p className="hero-text">Text Yourself is a quiet place for your ideas, reminders, and everything you don&apos;t want to lose in the noise.</p><div className="store-row"><StoreButton store="App Store" icon={<AppleMark />} /><StoreButton store="Google Play" icon={<Play size={17} fill="currentColor" />} /></div><p className="microcopy"><Lock size={12} /> Private by default. No feeds. No followers. Just you.</p></div><PhoneMockup /></section>
 
@@ -53,7 +53,7 @@ export default function Page() {
       <section id="privacy" className="privacy"><div className="privacy-mark"><Lock size={28} /></div><div><p className="kicker">Your space, your rules</p><h2>Private thoughts<br /><em>stay private.</em></h2><p>We don&apos;t sell your data. We don&apos;t build a profile of you. Text Yourself is a tool, not a social network.</p><a href="#download" className="text-link">Read our privacy promise <ArrowRight size={15} /></a></div><div className="privacy-checks"><p><Check size={16} /> End-to-end encrypted</p><p><Check size={16} /> No ads, ever</p><p><Check size={16} /> Export anytime</p></div></section>
 
       <section id="download" className="download section"><div><p className="kicker">Start with one thought</p><h2>Make space for<br /><em>what matters.</em></h2><p>Your future self will thank you.</p></div><div className="store-row"><StoreButton store="App Store" icon={<AppleMark />} /><StoreButton store="Google Play" icon={<Play size={17} fill="currentColor" />} /></div></section>
-      <footer><a href="#top" className="brand"><span className="brand-mark"><img src="/favicon.png" alt="" /></span><span>text yourself</span></a><p>© 2026 Text Yourself. A little more space in your day.</p><div><a href="#privacy">Privacy</a><a href="#top">Back to top ↑</a></div></footer>
+      <footer><a href="#top" className="brand"><span className="brand-mark"><img src="/favicon.png" alt="" /></span><span>text yourself</span></a><p>© 2026 Text Yourself. A little more space in your day.</p><div><a href="/privacy">Privacy</a><a href="#top">Back to top ↑</a></div></footer>
     </main>
   )
 }

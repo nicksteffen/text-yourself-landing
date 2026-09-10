@@ -88,6 +88,8 @@ export async function POST(request: Request) {
       id?: string
       status?: string
       platform?: string
+      completedAt?: string
+      expirationDate?: string
       artifacts?: { buildUrl?: string }
       metadata?: { buildProfile?: string; channel?: string; appVersion?: string }
     }
@@ -103,6 +105,17 @@ export async function POST(request: Request) {
     }
 
     const envResult = await upsertEnvVar('APK_DOWNLOAD_URL', buildUrl)
+    // Metadata the app's launch check reads via GET /api/latest-build.
+    await upsertEnvVar(
+      'APK_BUILD_META',
+      JSON.stringify({
+        buildId: payload.id ?? null,
+        profile,
+        appVersion: payload.metadata?.appVersion ?? null,
+        completedAt: payload.completedAt ?? null,
+        expiresAt: payload.expirationDate ?? null,
+      })
+    )
     await triggerRedeploy()
 
     return NextResponse.json({ ok: true, updated: true, envResult, buildId: payload.id, profile })

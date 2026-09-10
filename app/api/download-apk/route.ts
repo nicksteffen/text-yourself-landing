@@ -1,7 +1,12 @@
 import { timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 
-const APK_GOOGLE_DRIVE_URL = 'https://drive.google.com/uc?export=download&id=1ZtAUWyUgExgNoMGooxBODfXOvV6FX9U8'
+// Last-resort fallback so the button never bricks if APK_DOWNLOAD_URL is
+// unset. Normally the URL comes from the env var, kept fresh automatically
+// by POST /api/eas-webhook on every finished preview EAS build.
+const APK_GOOGLE_DRIVE_FALLBACK = 'https://drive.google.com/uc?export=download&id=1ZtAUWyUgExgNoMGooxBODfXOvV6FX9U8'
+
+const APK_DOWNLOAD_URL = process.env.APK_DOWNLOAD_URL || APK_GOOGLE_DRIVE_FALLBACK
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid passcode' }, { status: 401 })
     }
 
-    return NextResponse.json({ url: APK_GOOGLE_DRIVE_URL }, {
+    return NextResponse.json({ url: APK_DOWNLOAD_URL }, {
       headers: { 'Cache-Control': 'no-store' },
     })
   } catch {

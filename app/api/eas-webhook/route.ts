@@ -1,7 +1,12 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
+import { put } from '@vercel/blob'
 
 export const runtime = 'nodejs'
+
+// Mirroring the ~125 MB APK (download from EAS, multipart upload to Blob) needs
+// far more than the default function budget.
+export const maxDuration = 300
 
 // Receives EAS BUILD webhooks (registered via `eas webhook:create`) and keeps
 // the APK_DOWNLOAD_URL Vercel env var pointed at the newest finished Android
@@ -9,14 +14,25 @@ export const runtime = 'nodejs'
 // Only preview builds feed the landing site (develop stays yours via OTA/direct
 // install); override with EAS_TRACKED_PROFILES if that ever changes.
 //
+// The finished EAS artifact URL expires after a couple of weeks, which used to
+// leave /download serving a dead link whenever no new build shipped. So the APK
+// is mirrored into Vercel Blob (`apk/text-yourself.apk` in the public
+// `text-yourself-apk` store) and APK_DOWNLOAD_URL points at that permanent URL.
+// If mirroring fails we fall back to the raw EAS URL and record `mirrored:false`
+// in APK_BUILD_META so /api/latest-build reports expiry honestly.
+//
 // Required Vercel env vars (all server-side, never NEXT_PUBLIC_):
 //   EAS_WEBHOOK_SECRET  - signing secret from `eas webhook:create --secret`
 //   VERCEL_API_TOKEN    - account token (vercel.com/account/tokens), project access
 //   VERCEL_PROJECT_ID   - `prj_...` id of this project (Settings -> General)
 //   VERCEL_DEPLOY_HOOK_URL - Deploy Hook that rebuilds production (Settings -> Git)
+//   BLOB_READ_WRITE_TOKEN  - from connecting the `text-yourself-apk` Blob store
+//                            (OIDC works too when BLOB_STORE_ID is present)
 // Optional:
 //   VERCEL_TEAM_ID      - team id if the project lives under a team
 //   EAS_TRACKED_PROFILES - comma list, default "preview"
+
+const APK_BLOB_PATHNAME = 'apk/text-yourself.apk'
 
 const TRACKED_PROFILES = (process.env.EAS_TRACKED_PROFILES ?? 'preview')
   .split(',')
@@ -70,6 +86,25 @@ async function triggerRedeploy() {
   if (!res.ok) throw new Error(`deploy hook failed: ${res.status}`)
 }
 
+// Copies the finished EAS artifact into Vercel Blob under a stable pathname and
+// returns its permanent public URL. The artifact URL itself expires, the blob
+// does not. Overwriting keeps the store at a single APK (~125 MB of the 1 GB
+// free tier) instead of accumulating one per build.
+async function mirrorApkToBlob(sourceUrl: string): Promise<string> {
+  const res = await fetch(sourceUrl)
+  if (!res.ok) throw new Error(`apk fetch failed: ${res.status}`)
+  const body = await res.arrayBuffer()
+
+  const blob = await put(APK_BLOB_PATHNAME, body, {
+    access: 'public',
+    allowOverwrite: true,
+    multipart: true, // recommended for files above 100 MB
+    contentType: 'application/vnd.android.package-archive',
+    cacheControlMaxAge: 60 * 60 * 24 * 30,
+  })
+  return blob.url
+}
+
 export async function POST(request: Request) {
   try {
     const secret = process.env.EAS_WEBHOOK_SECRET ?? ''
@@ -104,7 +139,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, ignored: true, reason: `profile ${profile} not tracked` })
     }
 
-    const envResult = await upsertEnvVar('APK_DOWNLOAD_URL', buildUrl)
+    // Prefer the durable Blob mirror. A Blob hiccup shouldn't stop the link from
+    // updating at all, so fall back to the raw (expiring) EAS artifact URL.
+    let downloadUrl = buildUrl
+    let mirrored = false
+    try {
+      downloadUrl = await mirrorApkToBlob(buildUrl)
+      mirrored = true
+    } catch (error) {
+      console.error(
+        'apk mirror failed, falling back to EAS artifact:',
+        error instanceof Error ? error.message : error
+      )
+    }
+
+    // The blob pathname is stable across builds, so pin a per-build query param:
+    // without it browsers and the CDN can keep serving the previous APK.
+    const servedUrl = mirrored ? `${downloadUrl}?v=${payload.id ?? Date.now()}` : downloadUrl
+    const envResult = await upsertEnvVar('APK_DOWNLOAD_URL', servedUrl)
     // Metadata the app's launch check reads via GET /api/latest-build.
     await upsertEnvVar(
       'APK_BUILD_META',
@@ -113,12 +165,23 @@ export async function POST(request: Request) {
         profile,
         appVersion: payload.metadata?.appVersion ?? null,
         completedAt: payload.completedAt ?? null,
-        expiresAt: payload.expirationDate ?? null,
+        // Only the raw EAS artifact expires; a mirrored blob never does. The app
+        // skips its update prompt while `expired` is true, so this must reflect
+        // where the link actually points.
+        expiresAt: mirrored ? null : payload.expirationDate ?? null,
+        mirrored,
       })
     )
     await triggerRedeploy()
 
-    return NextResponse.json({ ok: true, updated: true, envResult, buildId: payload.id, profile })
+    return NextResponse.json({
+      ok: true,
+      updated: true,
+      envResult,
+      buildId: payload.id,
+      profile,
+      mirrored,
+    })
   } catch (error) {
     // Non-2xx makes Expo retry with backoff — right for transient Vercel hiccups.
     // Bad payloads are already filtered above, so 500 here means "try again".

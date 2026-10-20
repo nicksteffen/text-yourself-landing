@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { ArrowRight, Braces, Check, Clock, CloudOff, Inbox, Lock, Menu, MessageCircle, Palette, PenLine, Send, Tag, X } from 'lucide-react'
 
 const SHOTS = [
-  { src: '/screenshots/01-sign-in.png', label: 'Sign in', note: 'Your space starts locked to you.' },
   { src: '/screenshots/02-threads.png', label: 'Threads', note: 'Every list, as a chat with yourself.' },
   { src: '/screenshots/03-thread-text.png', label: 'A thread', note: 'Bubbles, timestamps, scheduled sends.' },
   { src: '/screenshots/04-notes.png', label: 'Notes', note: 'The same lists, as markdown notes.' },

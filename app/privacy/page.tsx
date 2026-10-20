@@ -30,12 +30,12 @@ export default function PrivacyPage() {
 
       <section className="policy-wrap">
         <Section title="The short version">
-          <p>Your notes belong to you. We don&apos;t sell your data, we don&apos;t build a profile of you, and we don&apos;t show you ads. Text Yourself is a tool, not a social network. Your thoughts are encrypted and stay under your control.</p>
+          <p>Your notes belong to you. We don&apos;t sell your data, we don&apos;t build a profile of you, and we don&apos;t show you ads. Text Yourself is a tool, not a social network. Your thoughts stay under your control.</p>
         </Section>
 
         <Section title="What we collect">
           <p><strong>Local-first by default.</strong> The app works on your device. Your messages, notes, and reminders live on your phone. When you&apos;re offline, everything keeps working — your thoughts aren&apos;t sitting on our servers.</p>
-          <p><strong>Optional cloud sync.</strong> You can choose to enable sync between your devices. When you do, your notes are <strong>end-to-end encrypted</strong> — they&apos;re scrambled in a way that means we can&apos;t read them. We only hold encrypted copies so they can be delivered back to you.</p>
+          <p><strong>Optional cloud sync.</strong> You can choose to enable sync between your devices. When you do, a copy of your notes is sent to our servers so it can be delivered back to you on your other devices. We only hold what sync needs, we don&apos;t read it, and it isn&apos;t used to build a profile of you. Turn sync off and your thoughts stay on your phone.</p>
           <p><strong>Basic technical data.</strong> To keep sync working reliably, we may handle small amounts of technical information such as timestamps, device type, and app version. This helps us make sure things work and isn&apos;t used to build a profile of you.</p>
           <p><strong>On this website.</strong> This site uses Vercel Analytics to understand aggregate traffic (for example, which pages are visited). It doesn&apos;t tell us who you are.</p>
         </Section>
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="Storage &amp; security">
-          <p>Your notes are encrypted on your device and during sync. Where cloud services are involved, we use reputable providers with strong security practices, and notes are stored in an encrypted form we can&apos;t read. No system is perfect, but we design everything around the principle of holding as little as possible.</p>
+          <p>Your notes live on your device first, and everything is encrypted in transit. Where cloud services are involved, we use reputable providers with strong security practices and hold as little data as possible. No system is perfect, but we design everything around that principle.</p>
         </Section>
 
         <Section title="Sharing">
